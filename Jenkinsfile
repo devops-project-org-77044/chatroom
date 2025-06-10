@@ -53,5 +53,27 @@ pipeline{
                 }
             }
         }
+        stage('Docker build'){
+            steps{
+                sh 'docker build -t abdullah77044/chatroom .'
+            }
+        }
+        stage('Trivy image scan') {
+            steps{
+                sh ''' trivy image --severity LOW,MEDIUM,HIGH --format json -o trivy-image-HIGH-result.json --exit-code 0 vootlasaicharan/chatroom-application:latest
+                 trivy image --severity CRITICAL --format json -o trivy-image-CRITICAL-result.json --exit-code 0 vootlasaicharan/chatroom-application:latest'''
+            }
+            post{
+                always {
+                    // Convert JSON results to HTML
+                    sh ''' trivy convert \
+                    --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                    -o trivy-image-HIGH-result.html trivy-image-HIGH-result.json
+                    trivy convert \
+                    --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                    -o trivy-image-CRITICAL-result.html trivy-image-CRITICAL-result.json '''
+                }
+            }
+        }
     }
 }
