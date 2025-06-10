@@ -88,5 +88,21 @@ pipeline{
                 }
             }
         }
+        stage('deploy'){
+            steps{
+                sshagent(['ssh-cred']) {
+                    withAWS(credentials: 'aws-cred' ,region: 'us-east-1') {
+                        sh ''' ssh -o StrictHostKeyChecking=no ubuntu@54.227.84.201 "
+                                docker stop chatroom-app || true
+                                docker rm chatroom-app || true
+                                docker rmi $(docker images -q) || true
+                            
+                                docker run --rm -itd --name chatroom-cont -p 8080:8080 abdullah77044/chatroom:${BUILD_NUMBER}
+                            "
+                            '''
+                    }
+                }
+            }
+        }
     }
 }
