@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chat Room</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #222831, #393E46);
+            color: #EEEEEE;
+        }
+        .chat-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #393E46;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        #messages {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #222831;
+            border-radius: 5px;
+            background-color: #222831;
+        }
+        .message-input {
+            display: flex;
+        }
+        .message-input input {
+            flex: 1;
+            margin-right: 10px;
+            background-color: #222831;
+            color: #EEEEEE;
+            border: 1px solid #00ADB5;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #222831;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            color: #EEEEEE;
+        }
+        .chatroom-name {
+            font-weight: bold;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            background-color: #222831;
+            padding: 10px 0;
+            color: #EEEEEE;
+        }
+        .custom-link {
+            color: #00ADB5;
+        }
+        .btn-success {
+            background-color: #00ADB5;
+            border: none;
+            color: #EEEEEE;
+        }
+
+        .social-icons {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-right: 15px;
+        }
+
+        .social-icons a {
+            font-size: 36px;
+        }
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<div class="header">
+    <h4 class="chatroom-name">Chatroom</h4>
+    <div class="d-flex align-items-center">
+        <div class="social-icons">
+            <a href="https://github.com/vootlasaicharan" target="_blank" title="github">
+                <i class="fab fa-github"></i>
+            </a>
+            <a href="https://linkedin.com/in/vootlasaicharan" target="_blank" title="LinkedIn">
+                <i class="fab fa-linkedin"></i>
+            </a>
+        </div>
+        <button class="btn btn-danger" onclick="leaveChat()">Leave Chat</button>
+    </div>
+</div>
+<div class="chat-container">
+    <h4>Welcome, <span id="username" class="text-primary"></span>!</h4>
+    <div id="messages"></div>
+    <div class="message-input">
+        <input type="text" id="messageInput" class="form-control" placeholder="Enter message...">
+        <button class="btn btn-success" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+<footer class="footer">
+    <p>&copy; 2024 Code With vootlasaicharan. All rights reserved. | <a href="#" class="custom-link">Privacy Policy</a> | <a href="#" class="custom-link">Terms of Service</a></p>
+</footer>
+
+<script>
+    var stompClient = null;
+    var username = new URLSearchParams(window.location.search).get('username');
+    document.getElementById('username').textContent = username;
+
+    // Assign a random color to each user
+    var userColors = {};
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    function connect() {
+        var socket = new SockJS('/chat-websocket');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function(frame) {
+            stompClient.subscribe('/topic/messages', function(messageOutput) {
+                showMessage(JSON.parse(messageOutput.body));
+            });
+            stompClient.send("/app/chat", {}, JSON.stringify({'username': username, 'content': username + ' has joined the chat'}));
+        });
+    }
+
+    function sendMessage() {
+        var messageInput = document.getElementById('messageInput').value;
+        stompClient.send("/app/chat", {}, JSON.stringify({'username': username, 'content': messageInput}));
+        document.getElementById('messageInput').value = '';
+    }
+
+    function leaveChat() {
+        stompClient.send("/app/leave", {}, JSON.stringify({'username': username, 'content': username + ' has left the chat'}));
+        window.location.href = "/";
+    }
+
+    function showMessage(message) {
+        var messagesDiv = document.getElementById('messages');
+        var messageElement = document.createElement('p');
+
+        // Assign a color to the user if not already assigned
+        if (!userColors[message.username]) {
+            userColors[message.username] = getRandomColor();
+        }
+
+        messageElement.style.backgroundColor = userColors[message.username];
+        messageElement.style.padding = '10px';
+        messageElement.style.borderRadius = '5px';
+        messageElement.style.marginBottom = '5px';
+        messageElement.style.color = '#fff';
+        messageElement.appendChild(document.createTextNode(message.username + ": " + message.content));
+
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    connect();
+</script>
+</body>
+</html>
