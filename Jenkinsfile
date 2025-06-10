@@ -25,7 +25,7 @@ pipeline{
         stage('sonarqube code quality'){
             steps{
                 withSonarQubeEnv('sqube-server') {
-                     sh ''' ${SCANNER_HOME/bin/sonar-scanner -Dsonar.projectKey=chatroom}
+                     sh ''' ${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=chatroom
                      -Dsonar.projectName=chatroom -Dsonar.java.binaries=target '''
                 }
             }
