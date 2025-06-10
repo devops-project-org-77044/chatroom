@@ -19,7 +19,7 @@ pipeline{
         }
         stage('trivy file scan'){
             steps{
-                sh 'trivy fs --severity HIGH,CRITICAL --format json -o trivy-report.json'
+                sh 'trivy fs . --severity HIGH,CRITICAL --format json -o trivy-report.json'
             }
         }
         stage('sonarqube code quality'){
