@@ -9,12 +9,12 @@ pipeline{
     stages{
         stage('Compile'){
             steps{
-                sh 'mvn compile'
+                sh 'mvn clean compile -DskipTests'
             }
         }
         stage('package'){
             steps{
-                sh 'mvn clean package -DskipTests'
+                sh 'mvn package -DskipTests'
             }
         }
         stage('trivy file scan'){
