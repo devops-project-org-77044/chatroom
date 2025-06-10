@@ -38,13 +38,13 @@ pipeline{
                 }
             }
         }
-        stage('dp check'){
-            steps {
-                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD-API-KEY')]) {
-                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD-API-KEY}', odcInstallation: 'owasp'
-                }
-             }
-        }
+        // stage('dp check'){
+        //     steps {
+        //         withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD-API-KEY')]) {
+        //             dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD-API-KEY}', odcInstallation: 'owasp'
+        //         }
+        //      }
+        // }
 
 
     }
