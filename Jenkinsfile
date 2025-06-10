@@ -4,7 +4,7 @@ pipeline{
         maven "mvn"
     }
     environment{
-        SCANNER_HOME = tool sqube-scanner
+        SCANNER_HOME = tool 'sqube-scanner'
     }
     stages{
         stage('Compile'){
