@@ -60,8 +60,8 @@ pipeline{
         }
         stage('Trivy image scan') {
             steps{
-                sh ''' trivy image --severity LOW,MEDIUM,HIGH --format json -o trivy-image-HIGH-result.json --exit-code 0 vootlasaicharan/chatroom-application:latest
-                 trivy image --severity CRITICAL --format json -o trivy-image-CRITICAL-result.json --exit-code 0 vootlasaicharan/chatroom-application:latest'''
+                sh ''' trivy image --severity LOW,MEDIUM,HIGH --format json -o trivy-image-HIGH-result.json --exit-code 0 abdullah77044/chatroom
+                 trivy image --severity CRITICAL --format json -o trivy-image-CRITICAL-result.json --exit-code 0 abdullah77044/chatroom'''
             }
             post{
                 always {
@@ -72,6 +72,13 @@ pipeline{
                     trivy convert \
                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
                     -o trivy-image-CRITICAL-result.html trivy-image-CRITICAL-result.json '''
+                }
+            }
+        }
+        stage('docker push'){
+            steps{
+                withDockerRegistry(credentialsId: 'docker-cred') {
+                    sh 'docker push abdullah77044/chatroom'
                 }
             }
         }
