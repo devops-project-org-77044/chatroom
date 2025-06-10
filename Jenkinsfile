@@ -26,7 +26,7 @@ pipeline{
                 always{
                     sh ''' trivy convert \
                     --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                    --o trivy-report.html trivy-report.json
+                    -o trivy-report.html trivy-report.json
                     '''
                 }
             }
@@ -45,6 +45,7 @@ pipeline{
                 }
              }
         }
+
 
     }
 }
