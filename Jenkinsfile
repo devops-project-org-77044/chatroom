@@ -14,5 +14,11 @@ pipeline{
                 sh 'mvn package -DskipTests'
             }
         }
+        stage('trivy file scan'){
+            steps{
+                sh 'trivy fs --severity HIGH,CRITICAL --format json -o trivy-report.json'
+            }
+        }
+        
     }
 }
