@@ -29,6 +29,13 @@ pipeline{
                 }
             }
         }
+        stage('dp check'){
+            steps {
+                withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD-API-KEY')]) {
+                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey', odcInstallation: 'owasp'
+                }
+             }
+        }
 
     }
 }
