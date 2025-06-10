@@ -14,7 +14,7 @@ pipeline{
         }
         stage('package'){
             steps{
-                sh 'mvn package -DskipTests'
+                sh 'mvn clean package -DskipTests'
             }
         }
         stage('trivy file scan'){
