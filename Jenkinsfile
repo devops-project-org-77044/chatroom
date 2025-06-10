@@ -8,6 +8,12 @@ pipeline{
 
     }
     stages{
+        stage('clean workspace') {
+            steps{
+                cleanWs()
+                checkout scm // re-fetch your source code after cleaning
+            }
+        }
         stage('Compile'){
             steps{
                 sh 'mvn clean compile -DskipTests'
