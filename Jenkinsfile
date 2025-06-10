@@ -5,6 +5,7 @@ pipeline{
     }
     environment{
         SCANNER_HOME = tool 'sqube-scanner'
+
     }
     stages{
         stage('Compile'){
@@ -21,6 +22,14 @@ pipeline{
             steps{
                 sh 'trivy fs . --severity HIGH,CRITICAL --format json -o trivy-report.json'
             }
+            post{
+                always{
+                    sh ''' trivy convert \
+                    --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+                    --o trivy-report.html trivy-report.json
+                    '''
+                }
+            }
         }
         stage('sonarqube code quality'){
             steps{
@@ -32,7 +41,7 @@ pipeline{
         stage('dp check'){
             steps {
                 withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD-API-KEY')]) {
-                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey', odcInstallation: 'owasp'
+                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey ${NVD-API-KEY}', odcInstallation: 'owasp'
                 }
              }
         }
