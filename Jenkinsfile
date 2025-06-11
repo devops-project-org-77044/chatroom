@@ -62,7 +62,7 @@ pipeline
         // }
         stage('Docker build'){
             steps{
-                sh 'docker build -t abdullah77044/chatroom .'
+                sh 'docker build -t abdullah77044/chatroom:${BUILD_NUMBER} .'
             }
         }
         // stage('Trivy image scan') {
@@ -84,8 +84,7 @@ pipeline
         // }
         stage('docker push'){
             steps{
-                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/')
-                {
+                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/'){
                     sh 'docker push abdullah77044/chatroom:${BUILD_NUMBER}'
                 }
             }
