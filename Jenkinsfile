@@ -131,7 +131,7 @@ pipeline
                                 git config --global user.email "muhammadabdullah3602@gmail.com"
                                 git add ${DEPLOYMENT_FILE}
                                 git commit -m "Updated deployment image to ${DOCKER_IMAGE}"
-                                git push https://${GIT_TOKEN}@ggithub.com/devops-project-org-77044/chatroom-k8s.git master
+                                git push https://${GIT_TOKEN}@github.com/devops-project-org-77044/chatroom-k8s.git master
                             """
                         }
                     }
