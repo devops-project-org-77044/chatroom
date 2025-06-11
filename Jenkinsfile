@@ -115,7 +115,7 @@ pipeline
             steps{
                 script{
                     def DOCKER_IMAGE = "abdullah77044/chatroom:${BUILD_NUMBER}"
-                    def DEPLOYMENT_FILE = "kubernetes/chatroom-deploy.yaml"
+                    def DEPLOYMENT_FILE = "chatroom-deploy.yaml"
 
                     sh 'git clone -b master https://github.com/devops-project-org-77044/chatroom-k8s.git'
                     dir('chatroom-k8s') {
