@@ -86,7 +86,7 @@ pipeline
             steps{
                 withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/')
                 {
-                    sh 'docker push abdullah77044/chatroom'
+                    sh 'docker push abdullah77044/chatroom:${BUILD_NUMBER}'
                 }
             }
         }
