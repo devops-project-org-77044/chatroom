@@ -89,6 +89,9 @@ pipeline{
             }
         }
         stage('deploy'){
+            when{
+                branch 'dev'
+            }
             steps{
                 sshagent(['ssh-cred']) {
                     withAWS(credentials: 'aws-cred' ,region: 'us-east-1') {
@@ -97,9 +100,38 @@ pipeline{
                                 docker rm chatroom-cont || true
                                 docker rmi $(docker images -q) || true
                             
-                                docker run --rm -itd --name chatroom-cont -p 8080:8080 abdullah77044/chatroom
+                                docker run --rm -itd --name chatroom-cont -p 8080:8080 abdullah77044/chatroom:${BUILD_NUMBER}
                             "
                             '''
+                    }
+                }
+            }
+        }
+        stage("updating K8s files"){
+            when{
+                branch 'master'
+            }
+            steps{
+                script{
+                    def DOCKER_IMAGE = "abdullah77044/chatroom:${BUILD_NUMBER}"
+                    def DEPLOYMENT_FILE = "kubernetes/chatroom-deploy.yaml"
+
+                    sh 'git clone -b master https://github.com/devops-project-org-77044/chatroom-k8s.git'
+                    dir('chatroom-k8s') {
+                        // Update the YAML file
+                        sh """
+                            sed -i 's|image: abdullah77044/chatroom:.*|image: ${DOCKER_IMAGE}|g' ${DEPLOYMENT_FILE}
+                        """
+
+                        withCredentials([string(credentialsId: 'git-token', variable: 'GIT_TOKEN')]) {
+                            sh """
+                                git config --global user.name "Rancidwhale"
+                                git config --global user.email "muhammadabdullah3602@gmail.com"
+                                git add ${DEPLOYMENT_FILE}
+                                git commit -m "Updated deployment image to ${DOCKER_IMAGE}"
+                                git push https://${GIT_TOKEN}@ggithub.com/devops-project-org-77044/chatroom-k8s.git master
+                            """
+                        }
                     }
                 }
             }
