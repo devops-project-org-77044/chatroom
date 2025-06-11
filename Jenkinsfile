@@ -1,12 +1,13 @@
-pipeline{
+pipeline
+{
     agent any
     tools{
         maven "mvn"
     }
-    environment{
-        SCANNER_HOME = tool 'sqube-scanner'
+    // environment{
+    //     SCANNER_HOME = tool 'sqube-scanner'
 
-    }
+    // }
     stages{
         stage('clean workspace') {
             steps{
@@ -83,7 +84,8 @@ pipeline{
         // }
         stage('docker push'){
             steps{
-                withDockerRegistry(credentialsId: 'docker-cred') {
+                withDockerRegistry(credentialsId: 'docker-cred', url: 'https://index.docker.io/v1/')
+                {
                     sh 'docker push abdullah77044/chatroom'
                 }
             }
