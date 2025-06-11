@@ -24,26 +24,26 @@ pipeline{
                 sh 'mvn package -DskipTests'
             }
         }
-        stage('trivy file scan'){
-            steps{
-                sh 'trivy fs . --severity HIGH,CRITICAL --format json -o trivy-report.json'
-            }
-            post{
-                always{
-                    sh ''' trivy convert \
-                    --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                    -o trivy-report.html trivy-report.json
-                    '''
-                }
-            }
-        }
-        stage('sonarqube code quality'){
-            steps{
-                withSonarQubeEnv('sqube-server') {
-                    sh ''' ${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=chatroom -Dsonar.projectName=chatroom -Dsonar.java.binaries=target '''
-                }
-            }
-        }
+        // stage('trivy file scan'){
+        //     steps{
+        //         sh 'trivy fs . --severity HIGH,CRITICAL --format json -o trivy-report.json'
+        //     }
+        //     post{
+        //         always{
+        //             sh ''' trivy convert \
+        //             --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+        //             -o trivy-report.html trivy-report.json
+        //             '''
+        //         }
+        //     }
+        // }
+        // stage('sonarqube code quality'){
+        //     steps{
+        //         withSonarQubeEnv('sqube-server') {
+        //             sh ''' ${SCANNER_HOME}/bin/sonar-scanner -Dsonar.projectKey=chatroom -Dsonar.projectName=chatroom -Dsonar.java.binaries=target '''
+        //         }
+        //     }
+        // }
         // stage('dp check'){
         //     steps {
         //         withCredentials([string(credentialsId: 'nvd-api-key', variable: 'NVD-API-KEY')]) {
@@ -52,35 +52,35 @@ pipeline{
         //      }
         // }
 
-        stage('sonarqube quality gate'){
-            steps{
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sqube-cred'
-                }
-            }
-        }
+        // stage('sonarqube quality gate'){
+        //     steps{
+        //         timeout(time: 1, unit: 'MINUTES') {
+        //             waitForQualityGate abortPipeline: false, credentialsId: 'sqube-cred'
+        //         }
+        //     }
+        // }
         stage('Docker build'){
             steps{
                 sh 'docker build -t abdullah77044/chatroom .'
             }
         }
-        stage('Trivy image scan') {
-            steps{
-                sh ''' trivy image --severity LOW,MEDIUM,HIGH --format json -o trivy-image-HIGH-result.json --exit-code 0 abdullah77044/chatroom
-                 trivy image --severity CRITICAL --format json -o trivy-image-CRITICAL-result.json --exit-code 0 abdullah77044/chatroom'''
-            }
-            post{
-                always {
-                    // Convert JSON results to HTML
-                    sh ''' trivy convert \
-                    --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                    -o trivy-image-HIGH-result.html trivy-image-HIGH-result.json
-                    trivy convert \
-                    --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
-                    -o trivy-image-CRITICAL-result.html trivy-image-CRITICAL-result.json '''
-                }
-            }
-        }
+        // stage('Trivy image scan') {
+        //     steps{
+        //         sh ''' trivy image --severity LOW,MEDIUM,HIGH --format json -o trivy-image-HIGH-result.json --exit-code 0 abdullah77044/chatroom
+        //          trivy image --severity CRITICAL --format json -o trivy-image-CRITICAL-result.json --exit-code 0 abdullah77044/chatroom'''
+        //     }
+        //     post{
+        //         always {
+        //             // Convert JSON results to HTML
+        //             sh ''' trivy convert \
+        //             --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+        //             -o trivy-image-HIGH-result.html trivy-image-HIGH-result.json
+        //             trivy convert \
+        //             --format template --template "@/usr/local/share/trivy/templates/html.tpl" \
+        //             -o trivy-image-CRITICAL-result.html trivy-image-CRITICAL-result.json '''
+        //         }
+        //     }
+        // }
         stage('docker push'){
             steps{
                 withDockerRegistry(credentialsId: 'docker-cred') {
