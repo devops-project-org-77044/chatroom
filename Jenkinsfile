@@ -104,7 +104,7 @@ pipeline
                             
                                 docker run --rm -itd --name chatroom-cont -p 8080:8080 abdullah77044/chatroom:${BUILD_NUMBER}
                             "
-                            '''
+                        '''
                     }
                 }
             }
